@@ -13,10 +13,12 @@ public class discordPixiConector : MonoBehaviour
     public string prefijoClave;
     public string urlResponse;
     public Button button; // Drag & Drop the button in the inspector
-    public DatosDisc login;
+    public Button checkLogin;
+    public DatosDisc login; 
     private  Timer aTimer;
     private  int i;
     private GameObject respawn;
+    public string response;
 
     // Start is called before the first frame update
     void Start()
@@ -36,16 +38,33 @@ public class discordPixiConector : MonoBehaviour
         i = 0;
         string code = prefijoClave + ((System.DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000).ToString();
         string login = urlLogin + "?code_sesion=" + code + "&k=" + KEY_API; 
-        string response = urlResponse + "?code_session=" + code + "&k=" + KEY_API;
-
+         response = urlResponse + "?code_session=" + code + "&k=" + KEY_API;
+        Debug.Log("ULR PARA CONSULTAR: " + response);
         Debug.Log(":\nPrefijos: " + code + ":\n " + urlResponse);
         Application.OpenURL(login);
         TurnRed();
-        SetTimer(); // Contador para poder hacer consultas
-        StartCoroutine(GetRequest(response));
+        //  SetTimer(); // Contador para poder hacer consultas
+        // StartCoroutine(GetRequest(response));
+        button.gameObject.SetActive(false);
+        checkLogin.gameObject.SetActive(true);
     }
+
+    public void getRes()
+    {
+        GetRequest(response);
+    }
+
+    public  void getRequestManual()
+    {
+       
+        StartCoroutine(GetRequest(response));
+
+    }
+
+
     IEnumerator GetRequest(string uri)
     {
+       
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
             // Request and wait for the desired page.
@@ -110,7 +129,7 @@ public class discordPixiConector : MonoBehaviour
     {
 
         // Create a timer with a two second interval.
-        aTimer = new System.Timers.Timer(10000);
+        aTimer = new System.Timers.Timer(20000);
         // Hook up the Elapsed event for the timer. 
         aTimer.Elapsed += new ElapsedEventHandler(timerLoop);
         aTimer.AutoReset = true;
@@ -187,11 +206,13 @@ public class DatosDisc
     {
         try
         {
+            Debug.LogError(jsonString + "Response");
             return JsonUtility.FromJson<DatosDisc>(jsonString);
         }
         catch (System.Exception)
         {
-           
+            Debug.LogError(jsonString + "Response");
+
 
             return JsonUtility.FromJson<DatosDisc>("{}");
         }
